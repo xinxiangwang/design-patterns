@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>单例模式</title>
+    <style>
+      .login {
+        width: 500px;
+        height: 500px;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: pink;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, .12);
+        font-size: 20px;
+        font-weight: bold;
+        text-align: center;
+        padding-top: 15px;
+        display: none;
+      }
+      .login.active {
+        display: block;
+      }
+      .close {
+        position: absolute;
+        right: 15px;
+        top: 15px;
+        font-size: 18px;
+      }
+    </style>
+</head>
+<body>
+<div id="box"></div>
+<button id="btn">创建唯一弹窗</button>
+<script>
+let SingLetonFun = function (fn) { // 单例模式的核心点， 利用一个闭包去缓存一个变量
+    var result
+    return function (...args) {
+        return result || (result = fn.apply(this, args)) // 如果是构造函数调用的话 这里的apply(this, args)就很有必要了
+    }
+}
+let Human = function (age, sex) {
+    this.age = age
+    this.sex = sex
+    return this
+}
+Human = SingLetonFun(Human)
+let a = new Human('小红', 12)
+let b = new Human('小明', 13)
+document.querySelector('#box').innerHTML = (a == b)
+
+
+
+// start
+let createOnceLoginDiv = SingLetonFun(function () {
+  let div = document.createElement('div')
+  let closeDiv = document.createElement('div')
+  div.className = 'login'
+  div.innerHTML = '登录框'
+
+  closeDiv.className = 'close'
+  closeDiv.innerHTML = '关闭'
+  closeDiv.addEventListener('click', function () {
+    div.className = 'login'
+  })
+  div.appendChild(closeDiv)
+  document.body.appendChild(div)
+  return div
+})
+
+document.querySelector('#btn').addEventListener('click', () => {
+  let loginDiv = createOnceLoginDiv() // 虽然每次都在调用  但是在单例处理函数的作用下，第二次及以后调用都没有去执行真正的创建元素的函数了，而是返回第一次函数的返回结果
+  loginDiv.className = 'login active'
+})
+</script>
+</body>
+</html>
