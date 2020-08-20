@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <input type="checkbox" id="1">1<br/>
+  <input type="checkbox" id="2">2<br/>
+  <input type="checkbox" id="3">3<br/>
+  <input type="checkbox" id="4">4<br/>
+  <input type="checkbox" id="5">5<br/>
+  <input type="checkbox" id="6">6<br/>
+  <input type="checkbox" id="7">7<br/>
+  <input type="checkbox" id="8">8<br/>
+  <input type="checkbox" id="9">9<br/>
+  <input type="checkbox" id="10">10<br/>
+  <input type="checkbox" id="11">11<br/>
+  <input type="checkbox" id="12">12<br/>
+  <input type="checkbox" id="13">13<br/>
+  <input type="checkbox" id="14">14<br/>
+  <input type="checkbox" id="15">15<br/>
+  <input type="checkbox" id="16">16<br/>
+  <input type="checkbox" id="17">17<br/>
+  <input type="checkbox" id="18">18<br/>
+</body>
+<script>
+  let synchronousFile = function (id) { // 没有代理 每选中一个checkbox直接调用
+    console.log('开始同步文件，id为' + id)
+  }
+
+  let agentSynchronousFile = (function () {
+    let cache = [], timer
+    return function (id) {
+      cache.push(id)
+      if (timer) return
+      timer = setTimeout(() => {
+        synchronousFile(cache.join(','))
+        timer = null
+        cache = []
+      }, 2000)
+    }
+  })()
+
+  let checkboxList = document.querySelectorAll('input')
+  checkboxList.forEach(item => {
+    item.onclick = function () {
+      if (this.checked === true) {
+        agentSynchronousFile(this.id)
+      }
+    }
+  });
+
+  
+</script>
+</html>
