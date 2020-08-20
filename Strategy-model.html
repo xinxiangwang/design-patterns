@@ -11,7 +11,7 @@
         background-color: pink;
         border-radius: 50%;
         box-shadow: 0 2px 4px rgba(0, 0, 0, .12);
-        position: absolute;
+        position: fixed;
       }
     </style>
 </head>
@@ -72,7 +72,7 @@ Animate.prototype.update = function (pos) {
 }
 
 let animate = new Animate(document.querySelector('#box'))
-animate.start('top', 500, 3000, 'strongEaseOut')
+animate.start('left', 2000, 3000, 'strongEaseOut')
 </script>
 </body>
 </html>

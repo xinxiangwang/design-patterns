@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+<form action="" id="registerForm" method="post">
+  <label for="userName">用户名</label>
+  <input type="text" name="userName"><br>
+  <label for="password">密码</label>
+  <input type="text" name="password"><br>
+  <label for="phoneNumber">电话号</label>
+  <input type="text" name="phoneNumber"><br>
+  <button type="submit">提交</button>
+</form>
+<script>
+  let strategies = { // 策略类
+    isNoEmpty (value, errMsg) {
+      if (value === '') {
+        return errMsg
+      }
+    },
+    minLength (value, length, errMsg) {
+      if (value.length < length) {
+        return errMsg
+      }
+    },
+    isMobile (value, errMsg) {
+      if (!/(^1[3|5|8][0-9]{9}$)/.test(value)) {
+        return errMsg
+      }
+    }
+  }
+
+  function Validator () {
+    this.cache = []
+  }
+
+  Validator.prototype.add = function (dom, rule, errMsg) {
+    var arr = rule.split(':')
+    this.cache.push(function () {
+      var startegy = arr.shift()
+      arr.unshift(dom.value)
+      arr.push(errMsg)
+      return strategies[startegy].apply(dom, arr)
+    })
+  }
+
+  Validator.prototype.start = function () {
+    for (let i = 0, validataFunc; validataFunc = this.cache[i++];) {
+      let msg = validataFunc()
+      if (msg) {
+        return msg
+      }
+    }
+  }
+
+  let validataFunc = function () {
+    let validator = new Validator()
+    validator.add(registerForm.userName, 'isNoEmpty', '用户名不能为空')
+    validator.add(registerForm.password, 'minLength:6', '密码长度不能小于6位')
+    validator.add(registerForm.phoneNumber, 'isMobile', '手机号码格式不正确')
+    let errMsg = validator.start()
+    return errMsg
+  }
+  let registerForm = document.getElementById('registerForm')
+  registerForm.onsubmit = function () {
+    let errMsg = validataFunc()
+    if (errMsg) {
+      alert(errMsg)
+      return false
+    }
+  }
+</script>
+</body>
+</html>
