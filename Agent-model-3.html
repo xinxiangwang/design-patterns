@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+<script>
+  let mult = function (...arg) {
+    console.log("开始计算乘积")
+    let a = 1
+    for (let i = 0, length = arg.length; i < length; i++) {
+      a = a * arg[i]
+    }
+    console.log("计算乘积结束")
+    return a
+  }
+
+  let agentMult = (function () { // 代理  对运算过的值进行缓存
+    let cache = {}
+    return (...arg) => {
+      let key = arg.join(',')
+      if (cache[key]) {
+        return cache[key]
+      } else {
+        return cache[key] = mult(...arg)
+      }
+    }
+  })()
+
+  console.log(agentMult(5,5,5,5,5))
+  console.log(agentMult(5,5,5,5,5))
+  console.log(agentMult(5,5,5,5,3))
+  console.log(agentMult(5,5,2,5,3))
+  console.log(agentMult(5,5,5,5,3))
+  console.log(agentMult(5,5,2,5,3))
+</script>
+</body>
+</html>

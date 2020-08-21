@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+<script>
+  // class SalesOffices { // 售楼部
+  //   constructor () {
+  //     this.clientList = []
+  //   }
+  //   listen (fn) {
+  //     this.clientList.push(fn)
+  //   }
+  //   trigger () {
+  //     this.clientList.forEach(fn => {
+  //       fn()
+  //     });
+  //   }
+  // }
+  // const salesOffices = new SalesOffices()
+
+  // class Client { // 客户
+  //   constructor (price, squareMeter) {
+  //     this.price = price
+  //     this.squareMeter = squareMeter
+  //   }
+  //   public () {
+  //     console.log('价格：' + this.price)
+  //     console.log('squareMeter' + this.squareMeter)
+  //   }
+  // }
+
+  // const xiaoming = new Client(1000, 8)
+  // const xiaohong = new Client(2000, 8)
+
+  // salesOffices.listen(xiaoming.public.bind(xiaoming))
+  // salesOffices.listen(xiaohong.public.bind(xiaohong))
+
+  // salesOffices.trigger()
+  // salesOffices.trigger()
+
+  let salesOffices = {}
+  salesOffices.clientList = {}
+  salesOffices.listen = function (key, fn) {
+    if (!this.clientList[key]) {
+      this.clientList[key] = []
+    }
+    this.clientList[key].push(fn)
+  }
+  salesOffices.trigger = function () {
+    let key = Array.prototype.shift.call(arguments)
+    fns = this.clientList[key]
+    if (!fns || fns.length === 0) {
+      return false
+    }
+    fns.forEach(fn => {
+      fn.apply(this, arguments)
+    });
+  }
+  salesOffices.listen('meter88', (price) => { // 小明订阅一个
+    console.log('价格：' + price)
+  })
+  salesOffices.listen('meter2000', (price) => { // 小红订阅一个
+    console.log('价格：' + price)
+  })
+  salesOffices.trigger('meter88', 99999) // 售楼部发出小明订阅的
+  salesOffices.trigger('meter2000', 123456) // 售楼部发出小红订阅的
+</script>
+</body>
+</html>

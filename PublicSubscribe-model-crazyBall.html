@@ -1,0 +1,60 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>狂奔的小球</title>
+    <style>
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+        #box{
+            position: absolute;
+            top: 100px;
+            left: 100px;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: lightcoral;
+            cursor: move;
+            z-index: 0;
+        }
+    </style>
+</head>
+<body>
+  <div id="box"></div>
+<script>
+  class Drag {
+    constructor (dom) {
+      this.dom = dom
+      let arr = new Array('mouseL', 'mosueT', 'domL', 'domT', 'curL', 'curT')
+      arr.forEach(item => {
+          this[item] = null
+      })
+      this.dom.addEventListener('mousedown', this.down.bind(this))
+    }
+    down (e) {
+      console.log('鼠标按下')
+      let ele = this.ele
+      this.mouseL = e.clientX
+      this.mouseT = e.clientY
+      this.domL = e.offsetLeft
+      this.domT = e.offsetTop
+
+      this.MOVE = this.move.bind(this)
+      this.UP = this.up.bind(this)
+      document.addEventListener('mousemove', this.MOVE)
+      document.addEventListener('mouseup', this.UP)
+    }
+    move (e) {
+      console.log('鼠标移动')
+    }
+    up (e) {
+      document.removeEventListener('mousemove', this.MOVE);
+      document.removeEventListener('mouseup', this.UP);
+      console.log('鼠标抬起')
+    }
+  }
+  new Drag(document.querySelector('#box'))
+</script>
+</body>
+</html>
