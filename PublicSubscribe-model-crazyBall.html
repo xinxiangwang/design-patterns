@@ -33,25 +33,96 @@
       this.dom.addEventListener('mousedown', this.down.bind(this))
     }
     down (e) {
-      console.log('鼠标按下')
-      let ele = this.ele
+      console.log(e)
+      let dom = this.dom
       this.mouseL = e.clientX
       this.mouseT = e.clientY
-      this.domL = e.offsetLeft
-      this.domT = e.offsetTop
+      this.domL = dom.offsetLeft
+      this.domT = dom.offsetTop
 
       this.MOVE = this.move.bind(this)
       this.UP = this.up.bind(this)
       document.addEventListener('mousemove', this.MOVE)
       document.addEventListener('mouseup', this.UP)
+      clearInterval(this.flyTimer)
+      this.speedFly = undefined
     }
     move (e) {
-      console.log('鼠标移动')
+      let dom = this.dom
+      this.curL = e.clientX - this.mouseL + this.domL
+      this.curT = e.clientY - this.mouseT + this.domT
+      dom.style.left = this.curL + 'px'
+      dom.style.top = this.curT + 'px'
+      
+      if (!this.lastFly) {
+        this.lastFly = dom.offsetLeft
+        this.speedFly = 0
+        return
+      }
+      this.speedFly = dom.offsetLeft - this.lastFly
+      this.lastFly = dom.offsetLeft
     }
     up (e) {
       document.removeEventListener('mousemove', this.MOVE);
       document.removeEventListener('mouseup', this.UP);
-      console.log('鼠标抬起')
+      
+      this.horizen()
+      this.vertical()
+    }
+    horizen () {
+      // 水平移动最小值
+      let minL = 0
+      // 水平移动最大值
+      let maxL = document.documentElement.clientWidth - this.dom.offsetWidth
+      let speed = this.speedFly
+      this.flyTimer = setInterval(() => {
+        speed *= .98 // 初始速度 *.98就会慢慢递减
+        Math.abs(speed) <= 0.1 ? clearInterval(this.flyTimer) : null // 递减到0.1 就停
+        let curT = this.dom.offsetLeft
+        curT += speed
+        
+         // 如果水平移动超出最大值， 直接贴着屏幕， 并且接下来反方向移动（speed变成负数）
+        if (curT >= maxL) {
+          this.dom.style.left = maxL + 'px'
+          speed *= -1
+          return
+        }
+
+        if (curT <= minL) {
+          this.dom.style.left = minL + 'px'
+          speed *= -1
+          return
+        }
+
+        this.dom.style.left = curT + 'px'
+      }, 20)
+    }
+    vertical() {
+      let speed = 9.8,
+          minT = 0,
+          maxT = document.documentElement.clientHeight - this.dom.offsetHeight,
+          flag = 0;
+      this.dropTimer = setInterval(() => {
+          speed += 10;
+          speed *= .98;
+          Math.abs(speed) <= 0.1 ? clearInterval(this.dropTimer):null
+          //小球当前到视口最左端的距离
+          let curT = this.dom.offsetTop;
+          curT += speed;
+          //小球飞到视口顶部，反弹
+          if (curT >= maxT) {
+              this.dom.style.top = maxT + 'px';
+              speed *= -1;
+              return;
+          }
+          //小球落在视口底部，反弹
+          if (curT <= minT) {
+              this.dom.style.top = minT + 'px';
+              speed *= -1;
+              return;
+          }
+          this.dom.style.top = curT + 'px';
+      }, 20);
     }
   }
   new Drag(document.querySelector('#box'))
