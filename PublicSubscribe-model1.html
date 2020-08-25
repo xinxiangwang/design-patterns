@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>发布订阅模式1</title>
+</head>
+<body>
+<script>
+  const event = {
+    clientList: [],
+    listen (key, fn) {
+      if (!this.clientList[key]) {
+        this.clientList[key] = []
+      }
+      this.clientList[key].push(fn)
+    },
+    trigger (key, ...arg) {
+      fns = this.clientList[key]
+      if (!fns || fns.length === 0) {
+        return false
+      }
+      fns.forEach(item => {
+        item.apply(this, arg)
+      });
+    },
+    remove (key, fn) {
+      let fns = this.clientList[key]
+      if (!fns) {
+        return false
+      }
+      if (!fn) { // 取消所有事件
+        fns && (fns.length = 0)
+      } else {
+        for (let i = 0; i < fns.length; i++) {
+          let _fn = fns[i]
+          if (_fn === fn) {
+            fns.splice(i, 1)
+          }
+        }
+      }
+    }
+  }
+
+  const installEvent = function (obj) { // 安装订阅者函数
+    for (let key in event) {
+      obj[key] = event[key]
+    }
+  }
+
+  let salesOffices = {}
+  installEvent(salesOffices)
+  let xiaoming = function (price) {
+    console.log('小明订阅的' + price)
+  }
+  salesOffices.listen('88', xiaoming)
+  salesOffices.listen('100', price => {
+    console.log('小红订阅的' + price)
+  })
+  salesOffices.remove('88')
+  salesOffices.trigger('88', 200)
+  salesOffices.trigger('100', 500)
+  // const json = {
+  //   lives: [
+  //     {
+  //       city: '石家庄',
+  //       weather: '多云'
+  //     }
+  //   ]
+  // }
+  // if (json && json.lives && json.lives.length > 0) {
+  //   let box = document.createElement('div')
+  //   let data = json.lives[0]
+  //   let str = ''
+  //   Object.keys(data).forEach(item => {
+  //     str += `${item}：${data[item]}<br/>`
+  //   })
+  //   box.innerHTML = str
+  //   document.body.appendChild(box)
+  // }
+</script>
+</body>
+</html>

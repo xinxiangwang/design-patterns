@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+<script>
+  const Event = (function () {
+    let clientList = {}, listen, trigger, remove
+
+    listen = function (key, fn) {
+      if (!clientList[key]) {
+        clientList[key] = []
+      }
+      clientList[key].push(fn)
+    }
+
+    trigger = function (key, ...arg) {
+      fns = clientList[key]
+      if (!fns || fns.length === 0) {
+        return false
+      }
+      fns.forEach(item => {
+        item(arg)
+      });
+    }
+
+    remove = function (key, fn) {
+      let fns = clientList[key]
+      if (!fns) {
+        return false
+      }
+      if (!fn) { // 取消所有事件
+        fns && (fns.length = 0)
+      } else {
+        for (let i = 0; i < fns.length; i++) {
+          let _fn = fns[i]
+          if (_fn === fn) {
+            fns.splice(i, 1)
+          }
+        }
+      }
+    }
+    return {
+      listen,
+      trigger,
+      remove
+    }
+  })()
+  let xiaoming = function (price) {
+    console.log('小明订阅的' + price)
+  }
+  Event.listen('88', xiaoming)
+  Event.listen('100', price => {
+    console.log('小红订阅的' + price)
+  })
+  Event.remove('88')
+  Event.trigger('88', 200)
+  Event.trigger('100', 500)
+</script>
+</body>
+</html>

@@ -1,0 +1,190 @@
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>狂奔的小球</title>
+  <style>
+    html,
+    body {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    #box {
+      position: absolute;
+      top: 100px;
+      left: 100px;
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      background: lightcoral;
+      cursor: move;
+      z-index: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="box"></div>
+  <script>
+    class Subscribe {
+      constructor() {
+        this.pond = []
+      }
+
+      add(fn) {
+        let pond = this.pond
+        pond.some(item => item === fn) ? null : pond.push(fn)
+      }
+
+      remove(fn) {
+        let pond = this.pond
+        pond.forEach((item, index) => {
+          if (item === fn) {
+            pond[index] = null
+          }
+        })
+      }
+
+      update(...arg) {
+        let pond = this.pond
+        for (let i = 0; i < pond.length; i++) {
+          const item = pond[i]
+          if (item === null) {
+            pond.splice(i, 1)
+            i--
+            continue
+          }
+          item(...arg)
+        }
+      }
+    }
+    class Drag {
+      constructor(ele) {
+        this.ele = ele;
+        ['strX', 'strY', 'strL', 'strT', 'curL', 'curT'].forEach(item => {
+          this[item] = null;
+        });
+
+        this.subDown = new Subscribe;
+        this.subMove = new Subscribe;
+        this.subUp = new Subscribe;
+
+        //=>DRAG-START
+        this.DOWN = this.down.bind(this);
+        this.ele.addEventListener('mousedown', this.DOWN);
+      }
+
+      down(ev) {
+        let ele = this.ele;
+        this.strX = ev.clientX;
+        this.strY = ev.clientY;
+        this.strL = ele.offsetLeft;
+        this.strT = ele.offsetTop;
+
+        this.MOVE = this.move.bind(this);
+        this.UP = this.up.bind(this);
+        document.addEventListener('mousemove', this.MOVE);
+        document.addEventListener('mouseup', this.UP);
+
+        this.subDown.update(ele, ev);
+      }
+
+      move(ev) {
+        let ele = this.ele;
+        this.curL = ev.clientX - this.strX + this.strL;
+        this.curT = ev.clientY - this.strY + this.strT;
+        ele.style.left = this.curL + 'px';
+        ele.style.top = this.curT + 'px';
+
+        this.subMove.update(ele, ev);
+      }
+
+      up(ev) {
+        document.removeEventListener('mousemove', this.MOVE);
+        document.removeEventListener('mouseup', this.UP);
+
+        this.subUp.update(this.ele, ev);
+      }
+    }
+
+    function extendDrag(drag) {
+      //鼠标按下
+      let stopAnimate = function stopAnimate(curEle) {
+        clearInterval(curEle.flyTimer);
+        curEle.speedFly = undefined;
+        clearInterval(curEle.dropTimer);
+      };
+      //鼠标移动
+      let computedFly = function computedFly(curEle) {
+        if (!curEle.lastFly) {
+          curEle.lastFly = curEle.offsetLeft;
+          curEle.speedFly = 0;
+          return;
+        }
+        curEle.speedFly = curEle.offsetLeft - curEle.lastFly;
+        curEle.lastFly = curEle.offsetLeft;
+      };
+      //水平方向的运动
+      let animateFly = function animateFly(curEle) {
+        let minL = 0,
+          maxL = document.documentElement.clientWidth - curEle.offsetWidth,
+          speed = curEle.speedFly;
+        curEle.flyTimer = setInterval(() => {
+          speed *= .98;
+          Math.abs(speed) <= 0.1 ? clearInterval(animateFly) : null;
+          let curT = curEle.offsetLeft;
+          curT += speed;
+          if (curT >= maxL) {
+            curEle.style.left = maxL + 'px';
+            speed *= -1;
+            return;
+          }
+          if (curT <= minL) {
+            curEle.style.left = minL + 'px';
+            speed *= -1;
+            return;
+          }
+          curEle.style.left = curT + 'px';
+        }, 20);
+      };
+      //竖直方向的运动
+      let animateDrop = function animateDrop(curEle) {
+        let speed = 9.8,
+          minT = 0,
+          maxT = document.documentElement.clientHeight - curEle.offsetHeight;
+        curEle.dropTimer = setInterval(() => {
+          speed += 10;
+          speed *= .98;
+          Math.abs(speed) <= 0.1 ? clearInterval(animateFly) : null;
+          let curT = curEle.offsetTop;
+          curT += speed;
+          if (curT >= maxT) {
+            curEle.style.top = maxT + 'px';
+            speed *= -1;
+            return;
+          }
+          if (curT <= minT) {
+            curEle.style.top = minT + 'px';
+            speed *= -1;
+            return;
+          }
+          curEle.style.top = curT + 'px';
+        }, 20);
+      };
+      drag.subDown.add(stopAnimate);
+      drag.subMove.add(computedFly);
+      drag.subUp.add(animateFly);
+      drag.subUp.add(animateDrop);
+    };
+    let drag = new Drag(document.querySelector('#box'));
+    extendDrag(drag);
+
+
+    // let box = document.createElement('div')
+    // box.innerHTML = 'asdasdasd' // 后面这个字符串'asdasdasd'  换成你接口返回对象的某个值就行 比如说多少度 直接放对象是不行的
+    // document.body.appendChild(box)
+  </script>
+</body>
+
+</html>
