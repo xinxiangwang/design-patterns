@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>命令模式</title>
+  <style>
+    #ball {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background-color: pink;
+      transform: translate(-50%, -50%);
+      transition: all;
+    }
+  </style>
+</head>
+<body>
+  <div id="ball"></div>
+  <input type="text" id="pos">
+  <button id="btn">开始移动</button>
+  <button id="backBtn">撤回</button>
+<script>
+  // const ball = document.querySelector('#ball')
+  // const input = document.querySelector('#pos')
+  // const btn = document.querySelector('#btn')
+  // btn.onclick = () => {
+  //   let animate = new Animate(ball)
+  //   animate.start('left', '100', 1, 'linear')
+  // }
+
+  // function Animate (ele) {
+  //   this.ele = ele
+  // }
+  // Animate.prototype.start = function (direction, distance, time, type) {
+  //   this.ele.style['transitionDuration'] = time + 's'
+  //   this.ele.style['transitionTimingFunction'] = type
+  //   this.ele.style[direction] = `${distance}` + 'px'
+  //   console.log(this.ele.style)
+  // }
+
+  const ball = document.querySelector('#ball')
+  const input = document.querySelector('#pos')
+  const btn = document.querySelector('#btn')
+  const cacelBtn = document.querySelector('#backBtn')
+
+  const MoveCommand = function (receiver, pos) {
+    this.receiver = receiver
+    this.pos = pos
+  }
+
+  MoveCommand.prototype.execute = function () {
+    this.receiver.start('left', '100', 1, 'linear')
+    this.oldPos = this.receiver.ele.getBoundingClientRect()[this.receiver.propertyName]
+  }
+
+  MoveCommand.prototype.unexecute = function () {
+    this.receiver.start(this.receiver.propertyName, this.oldPos, 1, 'linear')
+  }
+
+  let moveCommand
+
+  btn.onclick = () => {
+    let animate = new Animate(ball)
+    moveCommand = new MoveCommand(animate, input.value)
+    moveCommand.execute()
+    cacelBtn.onclick = () => {
+      moveCommand.unexecute()
+    }
+  }
+
+  
+
+  function Animate (ele) {
+    this.ele = ele
+  }
+  Animate.prototype.start = function (direction, distance, time, type) {
+    this.propertyName = direction
+    this.ele.style['transitionDuration'] = time + 's'
+    this.ele.style['transitionTimingFunction'] = type
+    this.ele.style[direction] = `${distance}` + 'px'
+    console.log(this.ele.style)
+  }
+
+</script>
+</body>
+</html>

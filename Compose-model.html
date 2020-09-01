@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+<script>
+function Folder (name) {
+  this.name = name
+  this.files = []
+}
+Folder.prototype.add = function (file) {
+  this.files.push(file)
+}
+Folder.prototype.scan = function () {
+  console.log('扫描文件夹' + this.name)
+  this.files.forEach(file => {
+    file.scan()
+  })
+}
+
+function File (name) {
+  this.name = name
+}
+File.prototype.add = function () {
+  throw new Error('文件下面不能再添加文件')
+}
+File.prototype.scan = function () {
+  console.log('扫描文件' + this.name)
+}
+
+let folder = new Folder('文件夹1')
+let folder1 = new Folder('文件夹2')
+let folder2 = new Folder('文件夹3')
+
+let file1 = new File('aaa.jpg')
+let file2 = new File('bbb.jpg')
+let file3 = new File('ccc.jpg')
+let file4 = new File('ddd.jpg')
+
+folder.add(file1)
+folder1.add(file2)
+folder2.add(file3)
+folder2.add(file4)
+folder.add(folder1)
+folder.add(folder2)
+folder.scan()
+</script>
+</body>
+</html>
